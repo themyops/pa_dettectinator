@@ -1,0 +1,8 @@
+{
+  "plugin":  "DatasourcePACortexXDR",
+  "applicable_to": "all",
+  "check_unused": 1,
+  "app_id": "your appid",
+  "secret" : "your-secret",
+  "workspace" : "your url + /public_api/v1/"
+}

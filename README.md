@@ -20,6 +20,7 @@ Currently for detections, we have plugins for the following tools:
 - Splunk: saved searches config (file)
 - CSV: any csv with detections and ATT&CK technique ID's (file)
 - Excel: any Excel file with detections and ATT&CK technique ID's (file)
+- PaloAlto Cortex XDR
 
 For data sources, you can use the following plugins:
 - Defender for Endpoints: tables available in Advanced Hunting (based on OSSEM)
@@ -27,6 +28,7 @@ For data sources, you can use the following plugins:
 - Sentinel Window Security Auditing: event logging (based on OSSEM and EventID's found in your logging)
 - CSV: any csv with ATT&CK data sources and products (file)
 - Excel: any Excel file with ATT&CK data sources and products (file)
+- Palo Alto Cortex XDR (XQL on all detected EventIDs in the data lake with mapping to OSSEM)
 
 In the latest version we have also added support for importing attack groups data. The way that you import that data will depend on how you get your CTI data delivered. We added 2 sample plugins that you can use to create your own tailored plugins:
 - Excel: import techniques for groups from Excel. In this Excel (which can be found in the examples) each group has its own tab that lists the techniques.
