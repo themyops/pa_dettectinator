@@ -9,6 +9,7 @@ import random
 import string
 import time
 import zlib
+import io
 
 class DatasourcePACortexXDR(DatasourceOssemBase):
     """
@@ -132,7 +133,5 @@ class DatasourcePACortexXDR(DatasourceOssemBase):
         data_sources['product'] = data_sources[['Log Source','EventID']].agg(": ".join, axis = 1)
 
         alldata = data_sources[['datasource','product']].copy()
-
-        alldata.to_csv('ds.csv')
 
         return alldata
