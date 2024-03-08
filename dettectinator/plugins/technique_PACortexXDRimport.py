@@ -102,9 +102,9 @@ class TechniquePACortexXDR(TechniqueBase):
             use_case = record['description']
             yield technique, use_case, None
 
-    def build_query(self,offset) :
+    def build_query(self,offset,chunk_size) :
         return '"search_from" : ' + str(offset) + ', \
-            "search_to" : ' + str(offset+100) + ', \
+            "search_to" : ' + str(offset+chunk_size) + ', \
            "filters" : [ { \
             "field" : "alert_source", \
             "value" : [\"XDR Analytics\",\"XDR Analytics BIOC\"], \
@@ -120,35 +120,40 @@ class TechniquePACortexXDR(TechniqueBase):
         headers = self.set_xdr_api_headers()
 
         offset = 0
-        query = self.build_query(offset)
-
-        payload = '{\"request_data\": {' + query + '} }'
+        filters = '"filters" : [ { \
+            "field" : "alert_source", \
+            "value" : [\"XDR Analytics\",\"XDR Analytics BIOC\"], \
+            "operator" : "in" \
+            } \
+           ]'
+        
+        payload = '{\"request_data\": {' + filters + '} }'
         
         response = requests.post(url, data = payload, headers=headers).json()
 
         count = response['reply']['total_count']
-        returned = response['reply']['result_count']
-        print('Data size : '+ str(count) + ' got ' + str(returned))
+        chunk_size = int(response['reply']['result_count'])
+        print('Chunk size : '+ str(count) + ' got ' + str(chunk_size))
 
         alerts = pd.DataFrame() # empty frame
         alerts = pd.json_normalize(response['reply']['alerts'])
 
         # Get the rest of the data in chunks of 100
 
-        n_sweeps = (count // 100) + 1
-        print('Need to get ' + str(n_sweeps-1) + ' additional chunks')
+        n_sweeps = (count // chunk_size)
+        print('Need to get ' + str(n_sweeps) + ' additional chunks')
 
-        for i in range(n_sweeps-1) :
+        for i in range(n_sweeps) :
 #          reset the key every 10 fetches; the timeout is 5 minutes and the interface is slow
            if (i % 10 == 0) : 
                headers = headers = self.set_xdr_api_headers()
 
-           offset = (i+1) * 100
-           query = self.build_query(offset)
+           offset = (i+1) * chunk_size
+           query = self.build_query(offset, chunk_size)
            payload = '{\"request_data\": {' + query + '} }'
            response = requests.post(url, data = payload, headers=headers).json()
-           progress = ((i+1)/n_sweeps)*100
-           print('Progress : ' + str(i + 1) + " :  {0:0.2f}%".format(round(progress, 2)))
+           progress = ((i+1)/n_sweeps)*chunk_size
+           print('Progress : ' + str(i + 1) + " :  {0:0.2f}%".format(round(progress, 2)) + " ("+(str(offset))+ ")")
            tempdata = pd.json_normalize(response['reply']['alerts'])
            alerts = pd.concat([alerts, tempdata], ignore_index = True)
 
