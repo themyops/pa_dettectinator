@@ -20,13 +20,13 @@ class DatasourcePACortexXDR(DatasourceOssemBase):
         super().__init__(parameters)
 
         if 'app_id' not in self._parameters:
-            raise Exception('TechniquePACortexXDR: "app_id" parameter is required.')
+            raise Exception('DatasourcePACortexXDR: "app_id" parameter is required.')
 
         if 'secret' not in self._parameters:
-            raise Exception('TechniquePACortexXDR: "secret" parameter (api_key) is required.')
+            raise Exception('DatasourcePACortexXDR: "secret" parameter (api_key) is required.')
 
         if 'workspace' not in self._parameters:
-            raise Exception('TechniquePACortexXDR: "workspace" parameter is required.')
+            raise Exception('DatasourcePACortexXDR: "workspace" parameter is required.')
 
         self._app_id = self._parameters['app_id']
         self._secret = self._parameters['secret']
@@ -86,7 +86,7 @@ class DatasourcePACortexXDR(DatasourceOssemBase):
 
     def _get_pa_cortex_xdr_data(self) -> list:
         """
-        Collect the alerts on Cortex XDR
+        Collect the event codes from the eventlog on Cortex XDR
         """
         url = f'https://{self._workspace}/xql/start_xql_query'
 
