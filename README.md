@@ -1,5 +1,5 @@
 # Dettectinator
-Dettectinator - The Python library to your DeTT&amp;CT YAML files.
+Dettectinator - The Python library to your DeTT&amp;CT YAML files. This repo adds imports for Paloalto Networks Cortex XDR in two separate plugn files.
 
 [DeTT&CT](https://github.com/rabobank-cdc/DeTTECT) is a framework that helps blue teams in using MITRE ATT&CK to score and compare data log source quality, visibility coverage, detection coverage and threat actor behaviours. All administration is done in YAML files which can be editted via the [DeTT&CT Editor](https://rabobank-cdc.github.io/dettect-editor). But what if you want to automate the generation and modification of these YAML files? That's were Dettectinator comes in!
 
