@@ -39,3 +39,6 @@ In the latest version we have also added support for importing attack groups dat
 It's easy to create your own Dettectinator plugins or edit the ones we've provided to cover additional scenario's.
 
 More information on how to use Dettectinator and how to use and create plugins can be found in the [wiki](https://github.com/siriussecurity/dettectinator/wiki).
+
+## Paloalto Cortex
+The examples folder contains two template config files to use the plugins. You need to provide your workspace, appid and secret (API key) in the config file. 
