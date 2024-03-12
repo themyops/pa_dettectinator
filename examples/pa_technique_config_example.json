@@ -4,5 +4,6 @@
   "check_unused": 1,
   "app_id": "your appid",
   "secret" : "your-secret",
-  "workspace" : "your url + /public_api/v1/"
+  "workspace" : "your url + /public_api/v1/",
+  "fields" : "\"XDR Analytics\",\"XDR Analytics BIOC\",\"Correlation\""
 }

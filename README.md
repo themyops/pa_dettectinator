@@ -22,7 +22,7 @@ Currently for detections, we have plugins for the following tools:
 - Splunk: saved searches config (file)
 - CSV: any csv with detections and ATT&CK technique ID's (file)
 - Excel: any Excel file with detections and ATT&CK technique ID's (file)
-- PaloAlto Cortex XDR (All 'XDR Analytics' and 'XDR Analytics BIOC' alerts are classified as detected techniques)
+- PaloAlto Cortex XDR
 
 For data sources, you can use the following plugins:
 - Defender for Endpoints: tables available in Advanced Hunting (based on OSSEM)
@@ -41,4 +41,11 @@ It's easy to create your own Dettectinator plugins or edit the ones we've provid
 More information on how to use Dettectinator and how to use and create plugins can be found in the [wiki](https://github.com/siriussecurity/dettectinator/wiki).
 
 ## Paloalto Cortex
-The examples folder contains two template config files to use the plugins. You need to provide your workspace, appid and secret (API key) in the config file. 
+The examples folder contains two template config files to use the plugins. You need to provide your workspace, appid and secret (API key) in the config file. In the technique import, there are a few nice to haves, such as
+
+* `fields` : specifies the XDR fields. If you leave this open, the fields used are 'XDR Analytics', 'XDR Analytics BIOC' and 'Correlation'
+* `date` : only get the alerts after this date
+
+It is most practical to specify the fields in the config file and use a command line input for the date, as below
+
+> `python3 dettectinator.py -c pa_technique_config.json --date=2024-03-01`
