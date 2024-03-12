@@ -16,6 +16,7 @@ import hashlib
 import random
 import string
 import time
+from datetime import datetime
 
 try:
     # When dettectinator is installed as python library
@@ -49,6 +50,8 @@ class TechniquePACortexXDR(TechniqueBase):
         self._app_id = self._parameters['app_id']
         self._secret = self._parameters['secret']
         self._workspace = self._parameters['workspace']
+        self._fields = self._parameters['fields']
+        self._date = self._parameters['date']
 
     @staticmethod
     def get_cortex_api_key_hash(api_key, nonce, timestamp) -> str:
@@ -89,6 +92,8 @@ class TechniquePACortexXDR(TechniqueBase):
         parser.add_argument('--app_id', help='Cortex XDR AppID', required=True)
         parser.add_argument('--secret', help='Cortex XDR secret (API Key)', required=True)
         parser.add_argument('--workspace', help='Cortex XDR workspace URL', required=True)
+        parser.add_argument('--fields', help = 'Cortex XDR fields filter values')
+        parser.add_argument('--date', help = 'Cortex XDR date values')
 
     def get_data_from_source(self) -> Iterable:
         """
@@ -102,12 +107,12 @@ class TechniquePACortexXDR(TechniqueBase):
             use_case = record['description']
             yield technique, use_case, None
 
-    def build_query(self,offset,chunk_size) :
+    def build_query(self, offset, fields, datefilter, chunk_size) :
         return '"search_from" : ' + str(offset) + ', \
             "search_to" : ' + str(offset+chunk_size) + ', \
-           "filters" : [ { \
+           "filters" : [  '+ str(datefilter) +'{ \
             "field" : "alert_source", \
-            "value" : [\"XDR Analytics\",\"XDR Analytics BIOC\"], \
+            "value" : ['+ str(fields) +'], \
             "operator" : "in" \
             } \
            ]'
@@ -119,10 +124,29 @@ class TechniquePACortexXDR(TechniqueBase):
         url = f'https://{self._workspace}/alerts/get_alerts/'
         headers = self.set_xdr_api_headers()
 
+        if self._fields == None :
+            fields = '\"XDR Analytics\",\"XDR Analytics BIOC\", \"Correlation\"'
+        else :
+            fields = self._fields
+
+        if self._date == None :
+            fromdate = datetime(1971,1,1)
+            epoch = int(fromdate.timestamp() * 1000)
+            datefilter = ''
+        else :
+            year, month, day = map(int, self._date.split('-'))
+            fromdate = datetime(year,month,day)
+            epoch = int(fromdate.timestamp() * 1000)
+            datefilter = '{ \
+                "field" : "creation_time", \
+                "value" : ' + str(epoch) + ', \
+                "operator" : "gte" \
+                },'
+
         offset = 0
-        filters = '"filters" : [ { \
+        filters = '"filters" : [ '+ str(datefilter) +'{ \
             "field" : "alert_source", \
-            "value" : [\"XDR Analytics\",\"XDR Analytics BIOC\"], \
+            "value" : ['+ str(fields) +'], \
             "operator" : "in" \
             } \
            ]'
@@ -133,7 +157,10 @@ class TechniquePACortexXDR(TechniqueBase):
 
         count = response['reply']['total_count']
         chunk_size = int(response['reply']['result_count'])
-        print('Chunk size : '+ str(count) + ' got ' + str(chunk_size))
+        print('Data fields   : ' + str(fields))
+        print('Alerts from   : ' + str(fromdate) +' (' + str(epoch) +')')
+        print('Total records : ' + str(count))
+        print('Chunk size    : ' + str(chunk_size))
 
         alerts = pd.DataFrame() # empty frame
         alerts = pd.json_normalize(response['reply']['alerts'])
@@ -149,7 +176,7 @@ class TechniquePACortexXDR(TechniqueBase):
                headers = headers = self.set_xdr_api_headers()
 
            offset = (i+1) * chunk_size
-           query = self.build_query(offset, chunk_size)
+           query = self.build_query(offset, fields, datefilter, chunk_size)
            payload = '{\"request_data\": {' + query + '} }'
            response = requests.post(url, data = payload, headers=headers).json()
            progress = ((i+1)/n_sweeps)*chunk_size
